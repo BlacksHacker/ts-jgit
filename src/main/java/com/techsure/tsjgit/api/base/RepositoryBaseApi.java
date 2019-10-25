@@ -1,5 +1,8 @@
 package com.techsure.tsjgit.api.base;
 
+import com.techsure.tsjgit.util.JGitUtil;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
@@ -17,5 +20,9 @@ public class RepositoryBaseApi {
         File gitFile = new File(gitPath);
         FileRepositoryBuilder builder = new FileRepositoryBuilder();
         return builder.setGitDir(gitFile).build();
+    }
+
+    public static void initRepository(File dir) throws GitAPIException { ;
+        Git.init().setDirectory(dir).call();
     }
 }
