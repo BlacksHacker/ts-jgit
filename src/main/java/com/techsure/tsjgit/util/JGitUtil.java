@@ -1,7 +1,8 @@
 package com.techsure.tsjgit.util;
 
-import javafx.scene.input.DataFormat;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -13,9 +14,16 @@ import java.util.List;
  * @description:
  * @create: 2019-10-18 11:40
  **/
+@Component
 public class JGitUtil {
 
-    public static final String REPOSITORY_STORAGE_PATH = "C:\\techsure\\balantflow";
+    public static String repositoryPath;
+
+    @Value("${repository.root.path}")
+    public void setRepositoryPath(String repositoryPath) {
+        JGitUtil.repositoryPath = repositoryPath;
+    }
+
     public static final String GIT_SUFFIX = ".git";
     public static final String REFS_HEAD = "refs/heads/";
     public static final String TAGS_HEAD = "refs/tags/";
@@ -34,7 +42,7 @@ public class JGitUtil {
 
     public static String buildGitPath(String repositoryName){
         StringBuilder gitPath = new StringBuilder();
-        return gitPath.append(REPOSITORY_STORAGE_PATH)
+        return gitPath.append(repositoryPath)
                     .append(File.separator)
                     .append(repositoryName)
                     .append(File.separator)
@@ -44,7 +52,7 @@ public class JGitUtil {
 
     public static String buildRepositoryPath(String repositoryName){
         StringBuilder gitPath = new StringBuilder();
-        return gitPath.append(REPOSITORY_STORAGE_PATH)
+        return gitPath.append(repositoryPath)
                 .append(File.separator)
                 .append(repositoryName)
                 .toString();
