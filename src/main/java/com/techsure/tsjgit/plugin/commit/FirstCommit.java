@@ -31,19 +31,21 @@ public class FirstCommit implements IJGitPlugin {
 
     @Override
     public String getId() {
-        return "firstCommit";
+        return "firstcommit";
     }
 
     @Override
-    public Object doService(JSONObject jsonObject) {
+    public JSONObject doService(JSONObject jsonObject) {
+        JSONObject returnObj = new JSONObject();
         String repoName = jsonObject.optString("repoName");
         String revStr = jsonObject.optString("branchName");
         String path = jsonObject.optString("path");
-        if (JGitUtil.paramBlankCheck(repoName)){
-            throw new ParamBlankException();
-        }
+
         Iterable<RevCommit> commits;
         try {
+            if (JGitUtil.paramBlankCheck(repoName)){
+                throw new ParamBlankException();
+            }
             if (StringUtils.isBlank(revStr)){
                 commits = CommitApi.listCommits(JGitUtil.buildGitPath(repoName));
             }else if (StringUtil.isBlank(path)){
@@ -53,12 +55,15 @@ public class FirstCommit implements IJGitPlugin {
             }
             Iterator iterator = commits.iterator();
             if (iterator.hasNext()){
-                return new JGitCommitVo((RevCommit)iterator.next());
+                returnObj.put("Status", "OK");
+                returnObj.put("Data", new JGitCommitVo((RevCommit)iterator.next()));
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
+            returnObj.put("Status", "ERROR");
+            returnObj.put("Message", e.getMessage());
         }
-        return null;
+        return returnObj;
     }
 
     @Override

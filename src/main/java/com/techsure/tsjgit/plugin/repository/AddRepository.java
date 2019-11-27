@@ -28,26 +28,30 @@ public class AddRepository implements IJGitPlugin {
 
     @Override
     public String getId() {
-        return "addRepository";
+        return "addrepository";
     }
 
     @Override
-    public Object doService(JSONObject jsonObject) {
+    public JSONObject doService(JSONObject jsonObject) {
+        JSONObject returnObj = new JSONObject();
         String repoName = jsonObject.optString("repoName");
-        if (JGitUtil.paramBlankCheck(repoName)){
-            throw new ParamBlankException();
-        }
-        File dir = new File(JGitUtil.buildRepositoryPath(repoName));
-        if (dir.exists()){
-            throw new RepositoryExistException();
-        }
         try {
+            if (JGitUtil.paramBlankCheck(repoName)){
+                throw new ParamBlankException();
+            }
+            File dir = new File(JGitUtil.buildRepositoryPath(repoName));
+            if (dir.exists()){
+                throw new RepositoryExistException();
+            }
             dir.mkdir();
             RepositoryBaseApi.initRepository(dir);
+            returnObj.put("Status", "OK");
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
+            returnObj.put("Status", "ERROR");
+            returnObj.put("Message", e.getMessage());
         }
-        return null;
+        return returnObj;
     }
 
     @Override

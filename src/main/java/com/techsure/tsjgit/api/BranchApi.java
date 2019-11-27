@@ -3,13 +3,21 @@ package com.techsure.tsjgit.api;
 
 import com.techsure.tsjgit.api.base.BranchBaseApi;
 import com.techsure.tsjgit.api.base.RepositoryBaseApi;
+import net.sf.json.JSONObject;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @program: jgitservertest
@@ -87,5 +95,53 @@ public class BranchApi {
                 BranchBaseApi.branchDelete(git, branchName);
             }
         }
+    }
+
+    public static JSONObject branchMerge(String gitPath, String sourceBra, String targetBra, String message) throws IOException, GitAPIException{
+       try(Repository repository = RepositoryBaseApi.openJGitRepository(gitPath)){
+            try(Git git = new Git(repository)){
+               MergeResult mergeResult = BranchBaseApi.branchMerge(git, repository, sourceBra, targetBra, message);
+               if (mergeResult.getConflicts() != null){
+                   JSONObject conflictObj = new JSONObject();
+                   for (Map.Entry<String,int[][]> entry : mergeResult.getConflicts().entrySet()) {
+                       StringBuffer buffer = new StringBuffer();
+                       for(int[] arr : entry.getValue()) {
+                           buffer.append("__");
+                           buffer.append(Arrays.toString(arr));
+                       }
+                       conflictObj.put(entry.getKey(), buffer.toString());
+                   }
+                   return conflictObj;
+               }else {
+                   return null;
+               }
+            }
+        }
+    }
+
+    public static String diffBranch(String gitPath, String sourceBra, String targetBra, String fileName) throws IOException, GitAPIException{
+        String outPath = new StringBuffer( "C:\\jgit\\test\\diff\\")
+                .append(sourceBra)
+                .append( "VS" )
+                .append( targetBra)
+                .append(".txt")
+                .toString();
+        File file = new File(outPath);
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+        try(Repository repository = RepositoryBaseApi.openJGitRepository(gitPath)){
+            try(Git git = new Git(repository)){
+                List<DiffEntry> diff = BranchBaseApi.diffBranches(git, sourceBra, targetBra, repository, fileName);
+                for (DiffEntry entry : diff) {
+                    FileOutputStream out = new FileOutputStream(outPath);
+                    try (DiffFormatter formatter = new DiffFormatter(out)) {
+                        formatter.setRepository(repository);
+                        formatter.format(entry);
+                    }
+                }
+            }
+        }
+        return outPath;
     }
 }

@@ -1,49 +1,41 @@
 package com.techsure.tsjgit.plugin.branch;
 
 import com.techsure.tsjgit.api.BranchApi;
-import com.techsure.tsjgit.dto.JGitBranchVo;
-import com.techsure.tsjgit.dto.JGitHelpVo;
 import com.techsure.tsjgit.exception.ParamBlankException;
 import com.techsure.tsjgit.plugin.IJGitPlugin;
 import com.techsure.tsjgit.util.JGitUtil;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.eclipse.jgit.lib.Ref;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.stereotype.Controller;
 
 /**
  * @program: ts-jgit
- * @description:
- * @create: 2019-10-24 17:50
+ * @description: 合并分支
+ * @create: 2019-11-21 18:09
  **/
-@Component
-public class CountBranch implements IJGitPlugin {
+@Controller
+public class MergeBranch implements IJGitPlugin {
 
-    Logger logger = LoggerFactory.getLogger(CountBranch.class);
+    private Logger logger = LoggerFactory.getLogger(MergeBranch.class);
 
     @Override
     public String getId() {
-        return "countbranch";
+        return "mergebranch";
     }
 
     @Override
     public JSONObject doService(JSONObject jsonObject) {
         JSONObject returnObj = new JSONObject();
+        String targetBranch = jsonObject.optString("targetBra");
+        String sourceBranch = jsonObject.optString("sourceBra");
         String repoName = jsonObject.optString("repoName");
         try {
-            if (JGitUtil.paramBlankCheck(repoName)){
+            if (JGitUtil.paramBlankCheck(sourceBranch, targetBranch, repoName)){
                 throw new ParamBlankException();
             }
-            List<Ref> refs = BranchApi.listBranchs(JGitUtil.buildGitPath(repoName));
-            if (JGitUtil.listCheck(refs)){
-                returnObj.put("Status", "OK");
-                returnObj.put("Data", refs.size());
-            }
+             return BranchApi.branchMerge(JGitUtil.buildGitPath(repoName), sourceBranch, targetBranch, "succeed");
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             returnObj.put("Status", "ERROR");
@@ -54,8 +46,6 @@ public class CountBranch implements IJGitPlugin {
 
     @Override
     public JSONArray help() {
-        JSONArray jsonArray = new JSONArray();
-        jsonArray.add(new JGitHelpVo("repoName", "String", true, "repository name").parseJSON());
-        return jsonArray;
+        return null;
     }
 }

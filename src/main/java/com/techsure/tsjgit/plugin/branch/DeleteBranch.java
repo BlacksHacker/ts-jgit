@@ -26,22 +26,26 @@ public class DeleteBranch implements IJGitPlugin {
 
     @Override
     public String getId() {
-        return "deleteBranch";
+        return "deletebranch";
     }
 
     @Override
-    public Object doService(JSONObject jsonObject) {
+    public JSONObject doService(JSONObject jsonObject) {
+        JSONObject returnObj = new JSONObject();
         String repoName = jsonObject.optString("repoName");
         String branchName = jsonObject.optString("branchName");
-        if (JGitUtil.paramBlankCheck(repoName, branchName)){
-            throw new ParamBlankException();
-        }
         try {
+            if (JGitUtil.paramBlankCheck(repoName, branchName)){
+                throw new ParamBlankException();
+            }
             BranchApi.branchDelete(JGitUtil.buildGitPath(repoName), branchName);
+            returnObj.put("Status", "OK");
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
+            returnObj.put("Status", "ERROR");
+            returnObj.put("Message", e.getMessage());
         }
-        return null;
+        return returnObj;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.techsure.tsjgit.plugin.workTree;
 
+import com.techsure.tsjgit.api.CommitApi;
+import com.techsure.tsjgit.api.RepositoryApi;
 import com.techsure.tsjgit.api.base.CommitBaseApi;
 import com.techsure.tsjgit.api.base.RepositoryBaseApi;
 import com.techsure.tsjgit.dto.JGitCommitVo;
@@ -37,35 +39,39 @@ public class listWorkTree implements IJGitPlugin {
 
     @Override
     public String getId() {
-        return "listWorkTree";
+        return "listworktree";
     }
 
     @Override
-    public Object doService(JSONObject jsonObject) {
+    public JSONObject doService(JSONObject jsonObject) {
+        JSONObject returnObj = new JSONObject();
         String repoName = jsonObject.optString("repoName");
         String path = jsonObject.optString("path");
         String revStr = jsonObject.optString("branchName");
 
-        if (JGitUtil.paramBlankCheck(repoName, revStr)){
-            throw new ParamBlankException();
-        }
-        try(Repository repository = RepositoryBaseApi.openJGitRepository(JGitUtil.buildGitPath(repoName))){
-            try(Git git = new Git(repository)) {
-                File workTree;
-                if (StringUtil.isBlank(path)){
-                    workTree = repository.getWorkTree();
-                }else {
-                    workTree = new File(JGitUtil.buildRepositoryPath(repoName) + File.separator + path);
-                }
-                return listWorkTreeFile(git, revStr, workTree, repository, repoName);
+
+        try {
+            if (JGitUtil.paramBlankCheck(repoName, revStr)){
+                throw new ParamBlankException();
             }
-        }catch (Exception e){
+            String gitPath = JGitUtil.buildGitPath(repoName);
+            File workTree;
+            if (StringUtil.isBlank(path)){
+                workTree = RepositoryApi.getWorkTree(gitPath);
+            }else {
+                workTree = new File(JGitUtil.buildRepositoryPath(repoName) + File.separator + path);
+            }
+            returnObj.put("Data", listWorkTreeFile(gitPath, revStr, workTree, repoName));
+            returnObj.put("Status", "OK");
+        } catch (Exception e) {
             logger.error(e.getMessage(), e);
+            returnObj.put("Status", "ERROR");
+            returnObj.put("Message", e.getMessage());
         }
-        return null;
+        return  returnObj;
     }
 
-    private List<JGitFileVo> listWorkTreeFile(Git git, String revStr, File workTree, Repository repository, String repositoryName) throws IOException, GitAPIException {
+    private List<JGitFileVo> listWorkTreeFile(String gitPath, String revStr, File workTree, String repositoryName) throws IOException, GitAPIException {
         List<JGitFileVo> jGitFileList = new ArrayList<>();
         String[] childPaths = workTree.list();
         for (String path : childPaths) {
@@ -73,7 +79,7 @@ public class listWorkTree implements IJGitPlugin {
             String relativePath = file.getPath().replace(JGitUtil.buildRepositoryPath(repositoryName) + File.separator, "").replace(File.separator, "/");
             JGitFileVo jgitfileVo = new JGitFileVo();
             jgitfileVo.setPath(relativePath);
-            Iterable<RevCommit> commits = CommitBaseApi.listCommits(git, revStr, repository, relativePath);
+            Iterable<RevCommit> commits = CommitApi.listCommits(gitPath, revStr, relativePath);
             Iterator iterator =commits.iterator();
             List<JGitCommitVo> commitList = new ArrayList<>();
             if (iterator.hasNext()){

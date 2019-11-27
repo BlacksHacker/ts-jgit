@@ -5,9 +5,12 @@ import com.techsure.tsjgit.api.base.RepositoryBaseApi;
 import com.techsure.tsjgit.api.base.TagBaseApi;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @program: jgitservertest
@@ -68,6 +71,22 @@ public class TagApi {
         try(Repository repository = RepositoryBaseApi.openJGitRepository(gitPath)){
             try(Git git = new Git(repository)){
                 TagBaseApi.tagDelete(git, tagName);
+            }
+        }
+    }
+
+    public static List<Ref> listTags(String gitPath) throws IOException, GitAPIException{
+        try(Repository repository = RepositoryBaseApi.openJGitRepository(gitPath)){
+            try(Git git = new Git(repository)){
+                return TagBaseApi.listTags(git);
+            }
+        }
+    }
+
+    public static Iterable<RevCommit> listTagCommits(String gitPath, Ref ref) throws IOException, GitAPIException{
+        try(Repository repository = RepositoryBaseApi.openJGitRepository(gitPath)){
+            try(Git git = new Git(repository)){
+                return TagBaseApi.listTagCommits(git, repository, ref);
             }
         }
     }

@@ -38,7 +38,6 @@ public class JGitRestDispatcher {
                 } else {
                     jsonObj.put("Return", plugin.help());
                 }
-                jsonObj.put("Status", "OK");
             } else {
                 throw new ServiceNotFindException();
             }

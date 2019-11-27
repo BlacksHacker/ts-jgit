@@ -1,5 +1,6 @@
 package com.techsure.tsjgit.plugin.tag;
 
+import com.techsure.tsjgit.api.TagApi;
 import com.techsure.tsjgit.api.base.RepositoryBaseApi;
 import com.techsure.tsjgit.api.base.TagBaseApi;
 import com.techsure.tsjgit.dto.JGitCommitVo;
@@ -11,12 +12,14 @@ import com.techsure.tsjgit.util.JGitUtil;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -31,26 +34,29 @@ public class CountTag implements IJGitPlugin {
 
     @Override
     public String getId() {
-        return "countTag";
+        return "counttag";
     }
 
     @Override
-    public Object doService(JSONObject jsonObject) {
+    public JSONObject doService(JSONObject jsonObject) {
+        JSONObject returnObj = new JSONObject();
         String repoName = jsonObject.optString("repoName");
-        if (JGitUtil.paramBlankCheck(repoName)){
-            throw new ParamBlankException();
-        }
-        try(Repository repository = RepositoryBaseApi.openJGitRepository(JGitUtil.buildGitPath(repoName))){
-            try(Git git = new Git(repository)) {
-                List<Ref> refs = TagBaseApi.listTags(git);
-                if (JGitUtil.listCheck(refs)){
-                    return refs.size();
-                }
+        try {
+            if (JGitUtil.paramBlankCheck(repoName)){
+                throw new ParamBlankException();
             }
-        }catch (Exception e){
+            List<Ref> refs = TagApi.listTags(JGitUtil.buildGitPath(repoName));
+            returnObj.put("Status", "OK");
+            returnObj.put("Data", 0);
+            if (JGitUtil.listCheck(refs)){
+                returnObj.put("Data", refs.size());
+            }
+        } catch (Exception e) {
             logger.error(e.getMessage(), e);
+            returnObj.put("Status", "ERROR");
+            returnObj.put("Message", e.getMessage());
         }
-        return 0;
+        return returnObj;
     }
 
     @Override

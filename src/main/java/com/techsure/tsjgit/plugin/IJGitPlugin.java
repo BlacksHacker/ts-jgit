@@ -7,7 +7,7 @@ public interface IJGitPlugin {
 
     public String getId();
 
-    public Object doService( JSONObject jsonObject);
+    public JSONObject doService( JSONObject jsonObject);
 
     public JSONArray help();
 }

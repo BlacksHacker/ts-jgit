@@ -24,34 +24,30 @@ public class CreateBranch implements IJGitPlugin {
 
     @Override
     public String getId() {
-        return "createBranch";
+        return "createbranch";
     }
 
     @Override
-    public Object doService(JSONObject jsonObject) {
+    public JSONObject doService(JSONObject jsonObject) {
+        JSONObject returnObj = new JSONObject();
         String repoName = jsonObject.optString("repoName");
         String branchName = jsonObject.optString("branchName");
         String startPoint = jsonObject.optString("startPoint");
-        if (JGitUtil.paramBlankCheck(repoName, branchName, startPoint)){
-            throw new ParamBlankException();
-        }
-        boolean exist = false;
         try{
-            exist = BranchApi.branchExist(JGitUtil.buildGitPath(repoName), branchName);
+            if (JGitUtil.paramBlankCheck(repoName, branchName, startPoint)){
+                throw new ParamBlankException();
+            }
+            if (BranchApi.branchExist(JGitUtil.buildGitPath(repoName), branchName)){
+                throw new BranchExistException();
+            }
+            BranchApi.branchCreate(JGitUtil.buildGitPath(repoName), branchName, startPoint);
+            returnObj.put("Status", "OK");
         }catch (Exception ex){
             logger.error(ex.getMessage(), ex);
+            returnObj.put("Status", "ERROR");
+            returnObj.put("Message", ex.getMessage());
         }
-
-        if (exist){
-            throw new BranchExistException();
-        }
-
-        try {
-            BranchApi.branchCreate(JGitUtil.buildGitPath(repoName), branchName, startPoint);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-        return null;
+        return returnObj;
     }
 
     @Override

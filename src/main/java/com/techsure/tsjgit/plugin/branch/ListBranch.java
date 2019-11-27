@@ -29,26 +29,30 @@ public class ListBranch implements IJGitPlugin {
 
     @Override
     public String getId() {
-        return "listBranch";
+        return "listbranch";
     }
 
     @Override
-    public Object doService(JSONObject jsonObject) {
+    public JSONObject doService(JSONObject jsonObject) {
+        JSONObject returnObj = new JSONObject();
         String repoName = jsonObject.optString("repoName");
-        if (JGitUtil.paramBlankCheck(repoName)){
-            throw new ParamBlankException();
-        }
         List<JGitBranchVo> branchList = new ArrayList<>();
         try {
+            if (JGitUtil.paramBlankCheck(repoName)){
+                throw new ParamBlankException();
+            }
             List<Ref> refs = BranchApi.listBranchs(JGitUtil.buildGitPath(repoName));
             for (Ref ref : refs){
                 branchList.add(new JGitBranchVo(JGitUtil.excludeRefHead(ref.getName()), ref.getObjectId().getName()));
             }
-
+            returnObj.put("Status", "OK");
+            returnObj.put("Data", branchList);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
+            returnObj.put("Status", "ERROR");
+            returnObj.put("Message", e.getMessage());
         }
-        return branchList;
+        return returnObj;
     }
 
     @Override

@@ -23,22 +23,26 @@ public class DeleteTag implements IJGitPlugin {
 
     @Override
     public String getId() {
-        return "deleteTag";
+        return "deletetag";
     }
 
     @Override
-    public Object doService(JSONObject jsonObject) {
+    public JSONObject doService(JSONObject jsonObject) {
+        JSONObject returnObj = new JSONObject();
         String repoName = jsonObject.optString("repoName");
         String tagName = jsonObject.optString("tagName");
-        if (JGitUtil.paramBlankCheck(repoName, tagName)){
-            throw new ParamBlankException();
-        }
         try {
+            if (JGitUtil.paramBlankCheck(repoName, tagName)){
+                throw new ParamBlankException();
+            }
             TagApi.tagDelete(JGitUtil.buildGitPath(repoName), tagName);
+            returnObj.put("Status", "OK");
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
+            returnObj.put("Status", "ERROR");
+            returnObj.put("Message", e.getMessage());
         }
-        return null;
+        return returnObj;
     }
 
     @Override

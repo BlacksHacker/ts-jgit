@@ -25,28 +25,31 @@ public class CreateTag implements IJGitPlugin {
 
     @Override
     public String getId() {
-        return "createTag";
+        return "createtag";
     }
 
     @Override
-    public Object doService(JSONObject jsonObject) {
+    public JSONObject doService(JSONObject jsonObject) {
+        JSONObject returnObj = new JSONObject();
         String repoName = jsonObject.optString("repoName");
         String tagName = jsonObject.optString("tagName");
         String startPoint = jsonObject.optString("startPoint");
-
-        if (JGitUtil.paramBlankCheck(repoName, tagName)){
-            throw new ParamBlankException();
-        }
         try {
+            if (JGitUtil.paramBlankCheck(repoName, tagName)){
+                throw new ParamBlankException();
+            }
             if (StringUtils.isBlank(startPoint)){
                 TagApi.tagCreate(JGitUtil.buildGitPath(repoName), tagName);
             }else {
                 TagApi.tagCreate(JGitUtil.buildGitPath(repoName), tagName, startPoint);
             }
+            returnObj.put("Status", "OK");
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
+            returnObj.put("Status", "ERROR");
+            returnObj.put("Message", e.getMessage());
         }
-        return null;
+        return returnObj;
     }
 
     @Override

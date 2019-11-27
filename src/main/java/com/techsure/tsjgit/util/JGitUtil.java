@@ -62,6 +62,10 @@ public class JGitUtil {
         return RefName.replace(REFS_HEAD,"");
     }
 
+    public static String appendRefHead(String branchName){
+        return REFS_HEAD + branchName;
+    }
+
     public static String excludeTagHead(String tagName){
         return tagName.replace(TAGS_HEAD, "");
     }

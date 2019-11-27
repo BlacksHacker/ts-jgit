@@ -30,21 +30,21 @@ public class CountCommit implements IJGitPlugin {
 
     @Override
     public String getId() {
-        return "countCommit";
+        return "countcommit";
     }
 
     @Override
-    public Object doService(JSONObject jsonObject) {
+    public JSONObject doService(JSONObject jsonObject) {
+        JSONObject returnObj = new JSONObject();
         String repoName = jsonObject.optString("repoName");
         String revStr = jsonObject.optString("branchName");
         String path = jsonObject.optString("path");
-        if (JGitUtil.paramBlankCheck(repoName)){
-            throw new ParamBlankException();
-        }
         int commitCount = 0;
-
         Iterable<RevCommit> commits;
         try {
+            if (JGitUtil.paramBlankCheck(repoName)){
+                throw new ParamBlankException();
+            }
             if (StringUtils.isBlank(revStr)){
                 commits = CommitApi.listCommits(JGitUtil.buildGitPath(repoName));
             }else if (StringUtils.isBlank(path)){
@@ -57,10 +57,14 @@ public class CountCommit implements IJGitPlugin {
                 commitCount ++;
                 iterator.next();
             }
+            returnObj.put("Status", "OK");
+            returnObj.put("Data", commitCount);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
+            returnObj.put("Status", "ERROR");
+            returnObj.put("Message", e.getMessage());
         }
-        return commitCount;
+        return returnObj;
     }
 
     @Override

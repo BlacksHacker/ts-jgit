@@ -1,5 +1,6 @@
 package com.techsure.tsjgit.plugin.tag;
 
+import com.techsure.tsjgit.api.TagApi;
 import com.techsure.tsjgit.api.base.RepositoryBaseApi;
 import com.techsure.tsjgit.api.base.TagBaseApi;
 import com.techsure.tsjgit.dto.JGitCommitVo;
@@ -11,6 +12,7 @@ import com.techsure.tsjgit.util.JGitUtil;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -18,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -33,38 +36,41 @@ public class ListTag implements IJGitPlugin {
 
     @Override
     public String getId() {
-        return "listTag";
+        return "listtag";
     }
 
     @Override
-    public Object doService(JSONObject jsonObject) {
-
+    public JSONObject doService(JSONObject jsonObject) {
+        JSONObject returnObj = new JSONObject();
         String repoName = jsonObject.optString("repoName");
-        if (JGitUtil.paramBlankCheck(repoName)){
-            throw new ParamBlankException();
-        }
         List<JGitTagVo> tagList = new ArrayList<>();
-        try(Repository repository = RepositoryBaseApi.openJGitRepository(JGitUtil.buildGitPath(repoName))){
-            try(Git git = new Git(repository)) {
-                List<Ref> refs = TagBaseApi.listTags(git);
-                for (Ref ref : refs){
-                    JGitTagVo tagVo = new JGitTagVo();
-                    List<JGitCommitVo> commitList = new ArrayList<>();
-                    tagVo.setTagName(JGitUtil.excludeTagHead(ref.getName()));
-                    Iterable<RevCommit> commits = TagBaseApi.listTagCommits(git, repository, ref);
-                    Iterator iterator = commits.iterator();
-                    while (iterator.hasNext()){
-                        RevCommit commit = (RevCommit) iterator.next();
-                        commitList.add(new JGitCommitVo(commit));
-                    }
-                    tagVo.setCommitVoList(commitList);
-                    tagList.add(tagVo);
-                }
+        try {
+            if (JGitUtil.paramBlankCheck(repoName)){
+                throw new ParamBlankException();
             }
-        }catch (Exception e){
+            String gitPath = JGitUtil.buildGitPath(repoName);
+            List<Ref> refs = TagApi.listTags(JGitUtil.buildGitPath(gitPath));
+            for (Ref ref : refs){
+                Iterable<RevCommit> commits = TagApi.listTagCommits(gitPath, ref);
+                Iterator iterator = commits.iterator();
+                JGitTagVo tagVo = new JGitTagVo();
+                List<JGitCommitVo> commitList = new ArrayList<>();
+                tagVo.setTagName(JGitUtil.excludeTagHead(ref.getName()));
+                while (iterator.hasNext()){
+                    RevCommit commit = (RevCommit) iterator.next();
+                    commitList.add(new JGitCommitVo(commit));
+                }
+                tagVo.setCommitVoList(commitList);
+                tagList.add(tagVo);
+            }
+            returnObj.put("Status", "OK");
+            returnObj.put("Data", tagList);
+        } catch (Exception e) {
             logger.error(e.getMessage(), e);
+            returnObj.put("Status", "ERROR");
+            returnObj.put("Message", e.getMessage());
         }
-        return tagList;
+        return returnObj;
     }
 
     @Override
