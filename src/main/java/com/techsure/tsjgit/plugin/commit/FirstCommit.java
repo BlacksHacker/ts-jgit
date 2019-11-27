@@ -40,19 +40,12 @@ public class FirstCommit implements IJGitPlugin {
         String repoName = jsonObject.optString("repoName");
         String revStr = jsonObject.optString("branchName");
         String path = jsonObject.optString("path");
-
-        Iterable<RevCommit> commits;
         try {
             if (JGitUtil.paramBlankCheck(repoName)){
                 throw new ParamBlankException();
             }
-            if (StringUtils.isBlank(revStr)){
-                commits = CommitApi.listCommits(JGitUtil.buildGitPath(repoName));
-            }else if (StringUtil.isBlank(path)){
-                commits = CommitApi.listCommits(JGitUtil.buildGitPath(repoName), revStr);
-            }else {
-                commits = CommitApi.listCommits(JGitUtil.buildGitPath(repoName), revStr, path);
-            }
+
+            Iterable<RevCommit> commits = CommitApi.listCommits(JGitUtil.buildGitPath(repoName), revStr, path);
             Iterator iterator = commits.iterator();
             if (iterator.hasNext()){
                 returnObj.put("Status", "OK");

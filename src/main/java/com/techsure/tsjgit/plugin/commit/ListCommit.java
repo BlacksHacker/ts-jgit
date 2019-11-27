@@ -42,18 +42,11 @@ public class ListCommit implements IJGitPlugin {
         String revStr = jsonObject.optString("branchName");
         String path = jsonObject.optString("path");
         List<JGitCommitVo> commitList = new ArrayList<>();
-        Iterable<RevCommit> commits;
         try {
             if (JGitUtil.paramBlankCheck(repoName)){
                 throw new ParamBlankException();
             }
-            if (StringUtils.isBlank(revStr)){
-                commits = CommitApi.listCommits(JGitUtil.buildGitPath(repoName));
-            }else if (StringUtils.isBlank(path)){
-                commits = CommitApi.listCommits(JGitUtil.buildGitPath(repoName), revStr);
-            }else {
-                commits = CommitApi.listCommits(JGitUtil.buildGitPath(repoName), revStr, path);
-            }
+            Iterable<RevCommit> commits = CommitApi.listCommits(JGitUtil.buildGitPath(repoName), revStr, path);
             Iterator iterator = commits.iterator();
             while (iterator.hasNext()){
                 RevCommit commit = (RevCommit)iterator.next();

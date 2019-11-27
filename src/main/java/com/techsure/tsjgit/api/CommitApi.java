@@ -23,13 +23,13 @@ public class CommitApi {
      * @Param: [gitPath]
      * @return: java.lang.Iterable<org.eclipse.jgit.revwalk.RevCommit>
      */
-    public static Iterable<RevCommit> listCommits(String gitPath) throws IOException, GitAPIException {
+    /*public static Iterable<RevCommit> listCommits(String gitPath) throws IOException, GitAPIException {
         try(Repository repository = RepositoryBaseApi.openJGitRepository(gitPath)){
             try(Git git = new Git(repository)){
                 return CommitBaseApi.listCommits(git);
             }
         }
-    }
+    }*/
 
 
     /**
@@ -37,13 +37,13 @@ public class CommitApi {
      * @Param: [gitPath, revStr]
      * @return: java.lang.Iterable<org.eclipse.jgit.revwalk.RevCommit>
      */
-    public static Iterable<RevCommit> listCommits(String gitPath, String revStr) throws IOException, GitAPIException{
+    /*public static Iterable<RevCommit> listCommits(String gitPath, String revStr) throws IOException, GitAPIException{
         try(Repository repository = RepositoryBaseApi.openJGitRepository(gitPath)){
             try(Git git = new Git(repository)){
                 return  CommitBaseApi.listCommits(git, revStr, repository);
             }
         }
-    }
+    }*/
 
 
     /**

@@ -40,18 +40,12 @@ public class CountCommit implements IJGitPlugin {
         String revStr = jsonObject.optString("branchName");
         String path = jsonObject.optString("path");
         int commitCount = 0;
-        Iterable<RevCommit> commits;
+
         try {
             if (JGitUtil.paramBlankCheck(repoName)){
                 throw new ParamBlankException();
             }
-            if (StringUtils.isBlank(revStr)){
-                commits = CommitApi.listCommits(JGitUtil.buildGitPath(repoName));
-            }else if (StringUtils.isBlank(path)){
-                commits = CommitApi.listCommits(JGitUtil.buildGitPath(repoName), revStr);
-            }else {
-                commits = CommitApi.listCommits(JGitUtil.buildGitPath(repoName), revStr, path);
-            }
+            Iterable<RevCommit> commits = CommitApi.listCommits(JGitUtil.buildGitPath(repoName), revStr, path);
             Iterator iterator = commits.iterator();
             while (iterator.hasNext()){
                 commitCount ++;

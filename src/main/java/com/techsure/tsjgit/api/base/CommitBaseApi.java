@@ -1,6 +1,8 @@
 package com.techsure.tsjgit.api.base;
 
+import org.eclipse.jetty.util.StringUtil;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -14,7 +16,7 @@ import java.io.IOException;
  **/
 public class CommitBaseApi {
 
-    public static Iterable<RevCommit> listCommits(Git git) throws IOException, GitAPIException {
+    /*public static Iterable<RevCommit> listCommits(Git git) throws IOException, GitAPIException {
         return git.log()
                 .all()
                 .call();
@@ -31,5 +33,18 @@ public class CommitBaseApi {
                 .add(repository.resolve(revStr))
                 .addPath(path)
                 .call();
+    }*/
+
+    public static Iterable<RevCommit> listCommits(Git git, String revStr, Repository repository, String path) throws IOException, GitAPIException {
+        LogCommand logCommand = git.log();
+        if (StringUtil.isNotBlank(revStr)){
+            logCommand = logCommand.add(repository.resolve(revStr));
+            if (StringUtil.isNotBlank(path)){
+                logCommand = logCommand.addPath(path);
+            }
+        }else {
+            logCommand = logCommand.all();
+        }
+        return logCommand.call();
     }
 }
