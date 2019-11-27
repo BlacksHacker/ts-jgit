@@ -1,6 +1,7 @@
 package com.techsure.tsjgit.plugin.branch;
 
 import com.techsure.tsjgit.api.BranchApi;
+import com.techsure.tsjgit.dto.JGitHelpVo;
 import com.techsure.tsjgit.exception.ParamBlankException;
 import com.techsure.tsjgit.plugin.IJGitPlugin;
 import com.techsure.tsjgit.util.JGitUtil;
@@ -49,6 +50,11 @@ public class DiffBranch implements IJGitPlugin {
 
     @Override
     public JSONArray help() {
-        return null;
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.add(new JGitHelpVo("repoName", "String", true, "repository name").parseJSON());
+        jsonArray.add(new JGitHelpVo("targetBra", "String", true, "target repository name").parseJSON());
+        jsonArray.add(new JGitHelpVo("sourceBra", "String", true, "source repository name").parseJSON());
+        jsonArray.add(new JGitHelpVo("fileName", "String", false, "specific file full path ").parseJSON());
+        return jsonArray;
     }
 }
