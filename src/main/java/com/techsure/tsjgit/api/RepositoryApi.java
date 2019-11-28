@@ -21,4 +21,12 @@ public class RepositoryApi {
             return repository.getWorkTree();
         }
     }
+
+    public static void commitFile(String gitPath, String message, String fileName, String path) throws IOException, GitAPIException{
+        try(Repository repository = RepositoryBaseApi.openJGitRepository(gitPath)){
+            try(Git git = new Git(repository)){
+                RepositoryBaseApi.commitFile(git, message, fileName, path);
+            }
+        }
+    }
 }
