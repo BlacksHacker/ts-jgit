@@ -50,9 +50,11 @@ public class JGitUtil {
                     .toString();
     }
 
-    public static String buildFileFullPath(String fileName, String path){
+    public static String buildFileFullPath(String repoName, String fileName, String path){
         StringBuilder filePath = new StringBuilder();
         filePath.append(repositoryPath)
+                .append(File.separator)
+                .append(repoName)
                 .append(File.separator);
         if (StringUtils.isNotBlank(path)){
             filePath.append(path);
@@ -62,8 +64,8 @@ public class JGitUtil {
                 .toString();
     }
 
-    public static String buildFileFullPath(String filName){
-        return buildFileFullPath(filName, null);
+    public static String buildFileFullPath(String repoName, String filName){
+        return buildFileFullPath(repoName, filName, null);
     }
 
     public static String buildRepositoryPath(String repositoryName){

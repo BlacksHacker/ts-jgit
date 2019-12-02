@@ -1,4 +1,4 @@
-package com.techsure.tsjgit.plugin.repository;
+package com.techsure.tsjgit.plugin.file;
 
 import com.techsure.tsjgit.api.BranchApi;
 import com.techsure.tsjgit.api.RepositoryApi;
@@ -41,7 +41,7 @@ public class AddFile implements IJGitPlugin {
             }
             String gitPath = JGitUtil.buildGitPath(repoName);
             BranchApi.branchCreate(gitPath, newBranchName, oldBranchName);
-            RepositoryApi.commitFile(gitPath, message, fileName, path);
+            RepositoryApi.commitFile(gitPath, message, JGitUtil.buildFileFullPath(repoName, fileName, path));
             returnObj.put("Status", "OK");
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

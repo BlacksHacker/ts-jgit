@@ -9,21 +9,20 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 
 /**
  * @program: ts-jgit
- * @description: 合并分支
- * @create: 2019-11-21 18:09
+ * @description:
+ * @create: 2019-12-02 17:26
  **/
-@Controller
-public class MergeBranch implements IJGitPlugin {
-
-    private Logger logger = LoggerFactory.getLogger(MergeBranch.class);
+@Component
+public class checkConflict implements IJGitPlugin {
+    Logger logger = LoggerFactory.getLogger(checkConflict.class);
 
     @Override
     public String getId() {
-        return "mergebranch";
+        return "checkconflict";
     }
 
     @Override
@@ -36,8 +35,9 @@ public class MergeBranch implements IJGitPlugin {
             if (JGitUtil.paramBlankCheck(sourceBranch, targetBranch, repoName)){
                 throw new ParamBlankException();
             }
-            BranchApi.branchMerge(JGitUtil.buildGitPath(repoName), sourceBranch, targetBranch);
+            boolean isConflict = BranchApi.checkConflict(JGitUtil.buildGitPath(repoName), sourceBranch, targetBranch);
             returnObj.put("Status", "OK");
+            returnObj.put("Data", isConflict);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             returnObj.put("Status", "ERROR");

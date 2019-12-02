@@ -1,8 +1,10 @@
 package com.techsure.tsjgit.util;
-
+;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.apache.logging.log4j.util.StringBuilderFormattable;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -12,14 +14,15 @@ import java.util.regex.Pattern;
  **/
 public class DiffUtil {
 
-    public static void main(String[] args) {
-
+    public static JSONObject getDiffCodeJson(String lineContent){
         JSONObject file = new JSONObject();
         JSONArray codeArray = new JSONArray();
+        JSONArray delArray = new JSONArray();
+        JSONArray addArray = new JSONArray();
         int add = 0;
         int del = 0;
         int keep = 0;
-        String lineContent = "diff --git a/src/main/java/com/techsure/module/wuxibank/controller/FlowDashboardController.java b/src/main/java/com/techsure/module/wuxibank/controller/FlowDashboardController.java\n" +
+    /*    String lineContent = "diff --git a/src/main/java/com/techsure/module/wuxibank/controller/FlowDashboardController.java b/src/main/java/com/techsure/module/wuxibank/controller/FlowDashboardController.java\n" +
                 "index a2f8f56..b5b4633 100644\n" +
                 "--- a/src/main/java/com/techsure/module/wuxibank/controller/FlowDashboardController.java\n" +
                 "+++ b/src/main/java/com/techsure/module/wuxibank/controller/FlowDashboardController.java\n" +
@@ -32,7 +35,7 @@ public class DiffUtil {
                 "         return jsonArray;\n" +
                 "     }\n" +
                 "     \n";
-
+*/
         String[] lineArray = lineContent.split("\n");
 
         for (int i = 0; i < lineArray.length; i++){
@@ -64,18 +67,16 @@ public class DiffUtil {
                 JSONObject lineObj = new JSONObject();
                 lineObj.put("type", "del");
                 lineObj.put("code", lineCode.substring(1));
-                codeArray.add(lineObj);
+                delArray.add(lineObj);
                 del++;
-                continue;
             }
 
             if (lineCode.indexOf("+") == 0){
                 JSONObject lineObj = new JSONObject();
                 lineObj.put("type", "add");
                 lineObj.put("code", lineCode.substring(1));
-                codeArray.add(lineObj);
+                addArray.add(lineObj);
                 add++;
-                continue;
             }
 
             if (lineCode.indexOf(" ") == 0){
@@ -94,11 +95,49 @@ public class DiffUtil {
                 file.put("mode", lineCode.split(" ")[2]);
             }
 
+            if (addArray.size() != 0 && (addArray.size() == delArray.size())){
+                pickDiffCode(delArray, addArray, codeArray);
+            }
         }
         file.put("codeArray", codeArray);
         file.put("add", add);
         file.put("del", del);
         file.put("keep", keep);
-        System.out.println(file);
+        return file;
+    }
+    public static void pickDiffCode(JSONArray addArray, JSONArray delArray, JSONArray codeArray){
+        for (int i = 0; i < addArray.size(); i++){
+            JSONObject delObj = delArray.getJSONObject(i);
+            JSONObject addObj = addArray.getJSONObject(i);
+            DiffMatchPatch diffMatchPatch = new DiffMatchPatch();
+            List<DiffMatchPatch.Diff> diffList = diffMatchPatch.diff_main(delObj.optString("code"), addObj.optString("code"));
+            if (JGitUtil.listCheck(diffList)){
+                int delCount = 0;
+                StringBuffer delBuffer = new StringBuffer();
+                int addCount = 0;
+                StringBuffer addBuffer = new StringBuffer();
+                for (DiffMatchPatch.Diff diff : diffList){
+                    if (diff.operation.equals(DiffMatchPatch.Operation.DELETE)){
+                        delCount ++;
+                        delBuffer.setLength(0);
+                        delBuffer.append(diff.text);
+                    }
+                    if (diff.operation.equals(DiffMatchPatch.Operation.INSERT)){
+                        addCount++;
+                        addBuffer.setLength(0);
+                        addBuffer.append(diff.text);
+                    }
+                }
+                if (addCount == 0 && delCount == 1) {
+                    delObj.put("diff", delBuffer.toString());
+                }
+
+                if(addCount == 1 && delCount == 0){
+                    addObj.put("diff", addBuffer.toString());
+                }
+            }
+        }
+        codeArray.addAll(delArray);
+        codeArray.addAll(addArray);
     }
 }

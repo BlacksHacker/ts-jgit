@@ -37,9 +37,9 @@ public class DiffBranch implements IJGitPlugin {
             if (JGitUtil.paramBlankCheck(source, target, repoName)){
                 throw new ParamBlankException();
             }
-            String path = BranchApi.diffBranch(JGitUtil.buildGitPath(repoName), source, target, fileName);
+            JSONObject diffData = BranchApi.diffBranch(JGitUtil.buildGitPath(repoName), source, target, fileName);
             returnObj.put("Status", "OK");
-            returnObj.put("Data", path);
+            returnObj.put("Data", diffData);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             returnObj.put("Status", "ERROR");

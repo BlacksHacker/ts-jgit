@@ -3,6 +3,9 @@ package com.techsure.tsjgit.api;
 
 import com.techsure.tsjgit.api.base.BranchBaseApi;
 import com.techsure.tsjgit.api.base.RepositoryBaseApi;
+import com.techsure.tsjgit.exception.MergeConflictException;
+import com.techsure.tsjgit.util.DiffUtil;
+import com.techsure.tsjgit.util.JGitUtil;
 import net.sf.json.JSONObject;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeResult;
@@ -12,6 +15,7 @@ import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -97,11 +101,16 @@ public class BranchApi {
         }
     }
 
-    public static JSONObject branchMerge(String gitPath, String sourceBra, String targetBra, String message) throws IOException, GitAPIException{
+    public static void branchMerge(String gitPath, String sourceBra, String targetBra) throws IOException, GitAPIException{
        try(Repository repository = RepositoryBaseApi.openJGitRepository(gitPath)){
             try(Git git = new Git(repository)){
-               MergeResult mergeResult = BranchBaseApi.branchMerge(git, repository, sourceBra, targetBra, message);
-               if (mergeResult.getConflicts() != null){
+               MergeResult mergeResult = BranchBaseApi.branchMerge(git, repository, sourceBra, targetBra);
+               if (mergeResult.getConflicts() == null){
+                    git.commit().setAll(true).setMessage("Merge branch "+ sourceBra + " into " + targetBra).call();
+               }else {
+                    throw new MergeConflictException();
+               }
+               /*if (mergeResult.getConflicts() != null){
                    JSONObject conflictObj = new JSONObject();
                    for (Map.Entry<String,int[][]> entry : mergeResult.getConflicts().entrySet()) {
                        StringBuffer buffer = new StringBuffer();
@@ -114,34 +123,39 @@ public class BranchApi {
                    return conflictObj;
                }else {
                    return null;
-               }
+               }*/
             }
         }
     }
 
-    public static String diffBranch(String gitPath, String sourceBra, String targetBra, String fileName) throws IOException, GitAPIException{
-        String outPath = new StringBuffer( "C:\\jgit\\test\\diff\\")
-                .append(sourceBra)
-                .append( "VS" )
-                .append( targetBra)
-                .append(".txt")
-                .toString();
-        File file = new File(outPath);
-        if (!file.exists()) {
-            file.createNewFile();
+    public static boolean checkConflict(String gitPath, String sourceBra, String targetBra) throws GitAPIException, IOException{
+        try(Repository repository = RepositoryBaseApi.openJGitRepository(gitPath)){
+            try(Git git = new Git(repository)){
+                MergeResult mergeResult = BranchBaseApi.branchMerge(git, repository, sourceBra, targetBra);
+                if (mergeResult.getConflicts() == null){
+                    git.checkout().setName(JGitUtil.appendRefHead(sourceBra)).setForced(true).call();
+                    return false;
+                }
+                return true;
+            }
         }
+    }
+
+    public static JSONObject diffBranch(String gitPath, String sourceBra, String targetBra, String fileName) throws IOException, GitAPIException{
         try(Repository repository = RepositoryBaseApi.openJGitRepository(gitPath)){
             try(Git git = new Git(repository)){
                 List<DiffEntry> diff = BranchBaseApi.diffBranches(git, sourceBra, targetBra, repository, fileName);
                 for (DiffEntry entry : diff) {
-                    FileOutputStream out = new FileOutputStream(outPath);
-                    try (DiffFormatter formatter = new DiffFormatter(out)) {
-                        formatter.setRepository(repository);
-                        formatter.format(entry);
+                    try(ByteArrayOutputStream stream = new ByteArrayOutputStream()){
+                        try (DiffFormatter formatter = new DiffFormatter(stream)) {
+                            formatter.setRepository(repository);
+                            formatter.format(entry);
+                        }
+                        return DiffUtil.getDiffCodeJson(stream.toString());
                     }
                 }
             }
         }
-        return outPath;
+        return null;
     }
 }

@@ -8,10 +8,7 @@ import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
@@ -19,8 +16,13 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @program: jgitservertest
@@ -62,18 +64,21 @@ public class BranchBaseApi {
         return false;
     }
 
-    public static MergeResult branchMerge(Git git, Repository repository, String sourceBra, String targetBra, String message) throws IOException, GitAPIException{
+    public static MergeResult branchMerge(Git git, Repository repository, String sourceBra, String targetBra) throws IOException, GitAPIException{
         ObjectId mergeBase = repository.resolve(sourceBra);
-        git.checkout().setCreateBranch(false).setName(targetBra).call();
-        return git.merge()
+        BranchBaseApi.checkoutBranch(git, targetBra);
+        MergeResult result = git.merge()
                 .include(mergeBase)
                 .setCommit(false)
                 .setFastForward(MergeCommand.FastForwardMode.NO_FF)
-                .setMessage(message)
                 .call();
+        if (result.getConflicts() == null){
+
+        }
+        return result;
     }
 
-    public static List<Ref> listBranches(Git git) throws IOException, GitAPIException {
+    public static List<Ref> listBranches(Git git) throws GitAPIException {
         return git.branchList().call();
     }
 
@@ -101,5 +106,14 @@ public class BranchBaseApi {
             walk.dispose();
             return treeParser;
         }
+    }
+
+    public static void checkoutBranch(Git git, String branchName) throws GitAPIException{
+        String name = JGitUtil.appendRefHead(branchName);
+        git.checkout().setName(name).call();
+    }
+
+    public static void checkoutListPaths(Git git, List<String> paths) throws GitAPIException{
+        git.checkout().addPaths(paths).setForced(true).call();
     }
 }

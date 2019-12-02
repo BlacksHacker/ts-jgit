@@ -22,10 +22,10 @@ public class RepositoryApi {
         }
     }
 
-    public static void commitFile(String gitPath, String message, String fileName, String path) throws IOException, GitAPIException{
+    public static void commitFile(String gitPath, String message, String fileFullPath) throws IOException, GitAPIException{
         try(Repository repository = RepositoryBaseApi.openJGitRepository(gitPath)){
             try(Git git = new Git(repository)){
-                RepositoryBaseApi.commitFile(git, message, fileName, path);
+                RepositoryBaseApi.commitFile(git, message, fileFullPath);
             }
         }
     }
