@@ -26,9 +26,9 @@ public class RepositoryBaseApi {
         Git.init().setDirectory(dir).call();
     }
 
-    public static void commitFile(Git git, String message, String fileFullPath) throws GitAPIException{
+    public static void commitFile(Git git, String message, String relativePath) throws GitAPIException{
         git.add()
-                .addFilepattern(fileFullPath)
+                .addFilepattern(relativePath)
                 .call();
         git.commit()
                 .setMessage(message)

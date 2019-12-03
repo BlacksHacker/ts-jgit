@@ -32,10 +32,10 @@ public class RepositoryApi {
     * @Param: [gitPath, message, fileFullPath] 
     * @return: void  
     */ 
-    public static void commitFile(String gitPath, String message, String fileFullPath) throws IOException, GitAPIException{
+    public static void commitFile(String gitPath, String message, String relativePath) throws IOException, GitAPIException{
         try(Repository repository = RepositoryBaseApi.openJGitRepository(gitPath)){
             try(Git git = new Git(repository)){
-                RepositoryBaseApi.commitFile(git, message, fileFullPath);
+                RepositoryBaseApi.commitFile(git, message, relativePath);
             }
         }
     }

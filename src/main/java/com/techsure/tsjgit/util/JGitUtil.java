@@ -96,4 +96,8 @@ public class JGitUtil {
         }
         return false;
     }
+
+    public static String toLinux(String filePath){
+        return filePath.replace("\\", "/");
+    }
 }
