@@ -16,12 +16,22 @@ import java.io.IOException;
  **/
 public class RepositoryApi {
 
+    /**
+    * @Description: 获取文件树
+    * @Param: [gitPath]
+    * @return: java.io.File
+    */
     public static File getWorkTree(String gitPath) throws IOException, GitAPIException{
         try(Repository repository = RepositoryBaseApi.openJGitRepository(gitPath)){
             return repository.getWorkTree();
         }
     }
 
+    /** 
+    * @Description: 指定文件commit提交 
+    * @Param: [gitPath, message, fileFullPath] 
+    * @return: void  
+    */ 
     public static void commitFile(String gitPath, String message, String fileFullPath) throws IOException, GitAPIException{
         try(Repository repository = RepositoryBaseApi.openJGitRepository(gitPath)){
             try(Git git = new Git(repository)){

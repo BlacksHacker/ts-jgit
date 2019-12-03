@@ -2,10 +2,7 @@ package com.techsure.tsjgit.api.base;
 
 import com.techsure.tsjgit.util.JGitUtil;
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jgit.api.DiffCommand;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.MergeCommand;
-import org.eclipse.jgit.api.MergeResult;
+import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.*;
@@ -33,27 +30,27 @@ public class BranchBaseApi {
 
     private static final String REFS_HEAD = "refs/heads/";
 
-    public static void branchCreate(Git git, String branchName) throws IOException, GitAPIException{
-        git.branchCreate()
-                .setName(branchName)
-                .call();
+    public static void branchCreate(Git git, String branchName) throws GitAPIException{
+        branchCreate(git, branchName, null);
     }
 
-    public static void branchCreate(Git git, String branchName, String startPoint) throws IOException, GitAPIException{
-        git.branchCreate()
-                .setName(branchName)
-                .setStartPoint(startPoint)
-                .call();
+    public static void branchCreate(Git git, String branchName, String startPoint) throws GitAPIException{
+        CreateBranchCommand command = git.branchCreate()
+                .setName(branchName);
+        if (StringUtils.isNotBlank(startPoint)) {
+            command.setStartPoint(startPoint);
+        }
+        command.call();
     }
 
-    public static void branchDelete(Git git, String branchName) throws IOException, GitAPIException{
+    public static void branchDelete(Git git, String branchName) throws GitAPIException{
         git.branchDelete()
                 .setBranchNames(branchName)
                 .setForce(true)
                 .call();
     }
 
-    public static boolean branchExist(Git git, String branchName) throws IOException, GitAPIException{
+    public static boolean branchExist(Git git, String branchName) throws GitAPIException{
         branchName = REFS_HEAD + branchName;
         List<Ref> refs = git.branchList().call();
         for (Ref ref : refs){
@@ -109,8 +106,7 @@ public class BranchBaseApi {
     }
 
     public static void checkoutBranch(Git git, String branchName) throws GitAPIException{
-        String name = JGitUtil.appendRefHead(branchName);
-        git.checkout().setName(name).call();
+        git.checkout().setName(JGitUtil.appendRefHead(branchName)).call();
     }
 
     public static void checkoutListPaths(Git git, List<String> paths) throws GitAPIException{

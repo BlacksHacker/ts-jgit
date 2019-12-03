@@ -41,6 +41,7 @@ public class AddFile implements IJGitPlugin {
             }
             String gitPath = JGitUtil.buildGitPath(repoName);
             BranchApi.branchCreate(gitPath, newBranchName, oldBranchName);
+            BranchApi.checkoutBranch(gitPath, newBranchName);
             RepositoryApi.commitFile(gitPath, message, JGitUtil.buildFileFullPath(repoName, fileName, path));
             returnObj.put("Status", "OK");
         } catch (Exception e) {

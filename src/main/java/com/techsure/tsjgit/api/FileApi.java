@@ -20,6 +20,11 @@ public class FileApi {
     private static final String UP = "up";
     private static final String DOWN = "down";
 
+    /** 
+    * @Description: 获取文章指定行号内容 
+    * @Param: [gitPath, lineNum, branchName, filePath, sign] 
+    * @return: net.sf.json.JSONArray  
+    */ 
     public static JSONArray fileContent(String gitPath, int lineNum, String branchName, String filePath, String sign) throws IOException, GitAPIException {
         JSONArray fileContentArray = new JSONArray();
         try(Repository repository = RepositoryBaseApi.openJGitRepository(gitPath)){
