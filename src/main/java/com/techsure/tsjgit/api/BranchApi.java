@@ -134,11 +134,11 @@ public class BranchApi {
         }
     }
 
-    /** 
-    * @Description: 分支冲突检测 
-    * @Param: [gitPath, sourceBra, targetBra] 
-    * @return: boolean  
-    */ 
+    /**
+    * @Description: 分支冲突检测
+    * @Param: [gitPath, sourceBra, targetBra]
+    * @return: boolean
+    */
     public static boolean checkConflict(String gitPath, String sourceBra, String targetBra) throws GitAPIException, IOException{
         try(Repository repository = RepositoryBaseApi.openJGitRepository(gitPath)){
             try(Git git = new Git(repository)){
@@ -152,30 +152,6 @@ public class BranchApi {
         }
     }
 
-    /** 
-    * @Description: 分支文件差异 
-    * @Param: [gitPath, sourceBra, targetBra, fileName] 
-    * @return: net.sf.json.JSONObject  
-    */ 
-    public static JSONArray diffBranch(String gitPath, String sourceBra, String targetBra, String fileName) throws IOException, GitAPIException{
-        JSONArray diffArray = new JSONArray();
-        try(Repository repository = RepositoryBaseApi.openJGitRepository(gitPath)){
-            try(Git git = new Git(repository)){
-                List<DiffEntry> diff = BranchBaseApi.diffBranches(git, sourceBra, targetBra, repository, fileName);
-                try(ByteArrayOutputStream stream = new ByteArrayOutputStream()){
-                    try (DiffFormatter formatter = new DiffFormatter(stream)) {
-                        formatter.setRepository(repository);
-                        for (DiffEntry entry : diff) {
-                            formatter.format(entry);
-                            diffArray.add(DiffUtil.getDiffCodeJson(stream.toString()));
-                            stream.flush();
-                        }
-                    }
-                }
-            }
-        }
-        return diffArray;
-    }
 
     /**
     * @Description: 分支切换

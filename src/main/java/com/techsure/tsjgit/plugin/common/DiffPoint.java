@@ -1,6 +1,7 @@
-package com.techsure.tsjgit.plugin.branch;
+package com.techsure.tsjgit.plugin.common;
 
 import com.techsure.tsjgit.api.BranchApi;
+import com.techsure.tsjgit.api.CommonApi;
 import com.techsure.tsjgit.dto.JGitHelpVo;
 import com.techsure.tsjgit.exception.ParamBlankException;
 import com.techsure.tsjgit.plugin.IJGitPlugin;
@@ -18,26 +19,26 @@ import org.springframework.stereotype.Component;
  * @create: 2019-11-25 18:27
  **/
 @Component
-public class DiffBranch implements IJGitPlugin {
-    Logger logger = LoggerFactory.getLogger(DiffBranch.class);
+public class DiffPoint implements IJGitPlugin {
+    Logger logger = LoggerFactory.getLogger(DiffPoint.class);
 
     @Override
     public String getId() {
-        return "diffbranch";
+        return "diffpoint";
     }
 
     @Override
     public JSONObject doService(JSONObject jsonObject) {
         JSONObject returnObj = new JSONObject();
-        String target = jsonObject.optString("targetBra");
-        String source = jsonObject.optString("sourceBra");
+        String sourceHAS = jsonObject.optString("sourceHAS");
+        String targetHAS = jsonObject.optString("targetHAS");
         String repoName = jsonObject.optString("repoName");
         String fileName = jsonObject.optString("fileName");
         try {
-            if (JGitUtil.paramBlankCheck(source, target, repoName)){
+            if (JGitUtil.paramBlankCheck(sourceHAS, targetHAS, repoName)){
                 throw new ParamBlankException();
             }
-            JSONArray diffData = BranchApi.diffBranch(JGitUtil.buildGitPath(repoName), source, target, fileName);
+            JSONArray diffData = CommonApi.diffPoint(JGitUtil.buildGitPath(repoName), sourceHAS, targetHAS, fileName);
             returnObj.put("Status", "OK");
             returnObj.put("Data", diffData);
         } catch (Exception e) {
@@ -52,9 +53,9 @@ public class DiffBranch implements IJGitPlugin {
     public JSONArray help() {
         JSONArray jsonArray = new JSONArray();
         jsonArray.add(new JGitHelpVo("repoName", "String", true, "repository name").parseJSON());
-        jsonArray.add(new JGitHelpVo("targetBra", "String", true, "target repository name").parseJSON());
-        jsonArray.add(new JGitHelpVo("sourceBra", "String", true, "source repository name").parseJSON());
-        jsonArray.add(new JGitHelpVo("fileName", "String", false, "specific file full path ").parseJSON());
+        jsonArray.add(new JGitHelpVo("targetHAS", "String", true, "target HAS").parseJSON());
+        jsonArray.add(new JGitHelpVo("sourceHAS", "String", true, "source HAS").parseJSON());
+        jsonArray.add(new JGitHelpVo("fileName", "String", false, "specific file relative path ").parseJSON());
         return jsonArray;
     }
 }

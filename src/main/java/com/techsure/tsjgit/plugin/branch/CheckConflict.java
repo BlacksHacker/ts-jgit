@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
  * @create: 2019-12-02 17:26
  **/
 @Component
-public class checkConflict implements IJGitPlugin {
-    Logger logger = LoggerFactory.getLogger(checkConflict.class);
+public class CheckConflict implements IJGitPlugin {
+    Logger logger = LoggerFactory.getLogger(CheckConflict.class);
 
     @Override
     public String getId() {

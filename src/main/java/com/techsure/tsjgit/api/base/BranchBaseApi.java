@@ -51,10 +51,9 @@ public class BranchBaseApi {
     }
 
     public static boolean branchExist(Git git, String branchName) throws GitAPIException{
-        branchName = REFS_HEAD + branchName;
         List<Ref> refs = git.branchList().call();
         for (Ref ref : refs){
-            if (branchName.equals(ref.getName())){
+            if (branchName.equals(JGitUtil.excludeRefHead(ref.getName()))){
                 return true;
             }
         }
@@ -77,32 +76,6 @@ public class BranchBaseApi {
 
     public static List<Ref> listBranches(Git git) throws GitAPIException {
         return git.branchList().call();
-    }
-
-    public static List<DiffEntry> diffBranches(Git git, String sourceBra, String targetBra, Repository repository, String fileName) throws IOException, GitAPIException{
-        AbstractTreeIterator oldTreeParser = prepareTreeParser(repository, JGitUtil.appendRefHead(targetBra));
-        AbstractTreeIterator newTreeParser = prepareTreeParser(repository, JGitUtil.appendRefHead(sourceBra));
-        DiffCommand command = git.diff()
-                .setOldTree(oldTreeParser)
-                .setNewTree(newTreeParser);
-        if (StringUtils.isNotBlank(fileName)){
-            command.setPathFilter(PathFilter.create(fileName));
-        }
-        return command.call();
-    }
-
-    private static AbstractTreeIterator prepareTreeParser(Repository repository, String ref) throws IOException {
-        Ref head = repository.exactRef(ref);
-        try(RevWalk walk = new RevWalk(repository)){
-            RevCommit commit = walk.parseCommit(head.getObjectId());
-            RevTree tree = walk.parseTree(commit.getTree().getId());
-            CanonicalTreeParser treeParser = new CanonicalTreeParser();
-            try(ObjectReader reader = repository.newObjectReader()){
-                treeParser.reset(reader, tree.getId());
-            }
-            walk.dispose();
-            return treeParser;
-        }
     }
 
     public static void checkoutBranch(Git git, String branchName) throws GitAPIException{
