@@ -90,9 +90,12 @@ public class DiffUtil {
 
             String pattern_2 = "^index ([0-9a-z]+)\\.\\.([0-9a-z]+)\\s*(\\d{6})?";
             if (Pattern.matches(pattern_2, lineCode)){
-                file.put("before", lineCode.split(" ")[1].split("\\.\\.")[0]);
-                file.put("after", lineCode.split(" ")[1].split("\\.\\.")[1]);
-                file.put("mode", lineCode.split(" ")[2]);
+                String[] array = lineCode.split(" ");
+                file.put("before", array[1].split("\\.\\.")[0]);
+                file.put("after", array[1].split("\\.\\.")[1]);
+                if (array.length > 2){
+                    file.put("mode", array[2]);
+                }
             }
 
             if (addArray.size() != 0 && (addArray.size() == delArray.size())){

@@ -18,12 +18,11 @@ import java.io.IOException;
  **/
 public class CommitApi {
 
-    /**
-     * @Description: 返回仓库指定分支指定文件的commit
-     *              这里的path要使用Linux路径
-     * @Param: [gitPath, revStr, path]
-     * @return: java.lang.Iterable<org.eclipse.jgit.revwalk.RevCommit>
-     */
+   /** 
+   * @Description: commit集合筛选 
+   * @Param: [gitPath, revStr, excludeRevStr, path] 
+   * @return: java.lang.Iterable<org.eclipse.jgit.revwalk.RevCommit>  
+   */ 
     public static Iterable<RevCommit> listCommits(String gitPath, String revStr, String excludeRevStr, String path) throws IOException, GitAPIException{
         try(Repository repository = RepositoryBaseApi.openJGitRepository(gitPath)){
             try(Git git = new Git(repository)){

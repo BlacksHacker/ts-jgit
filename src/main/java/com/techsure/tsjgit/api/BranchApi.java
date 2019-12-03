@@ -162,13 +162,14 @@ public class BranchApi {
         try(Repository repository = RepositoryBaseApi.openJGitRepository(gitPath)){
             try(Git git = new Git(repository)){
                 List<DiffEntry> diff = BranchBaseApi.diffBranches(git, sourceBra, targetBra, repository, fileName);
-                for (DiffEntry entry : diff) {
-                    try(ByteArrayOutputStream stream = new ByteArrayOutputStream()){
-                        try (DiffFormatter formatter = new DiffFormatter(stream)) {
-                            formatter.setRepository(repository);
+                try(ByteArrayOutputStream stream = new ByteArrayOutputStream()){
+                    try (DiffFormatter formatter = new DiffFormatter(stream)) {
+                        formatter.setRepository(repository);
+                        for (DiffEntry entry : diff) {
                             formatter.format(entry);
+                            diffArray.add(DiffUtil.getDiffCodeJson(stream.toString()));
+                            stream.flush();
                         }
-                        diffArray.add(DiffUtil.getDiffCodeJson(stream.toString()));
                     }
                 }
             }
