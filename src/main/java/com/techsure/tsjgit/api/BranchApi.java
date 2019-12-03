@@ -6,6 +6,7 @@ import com.techsure.tsjgit.api.base.RepositoryBaseApi;
 import com.techsure.tsjgit.exception.MergeConflictException;
 import com.techsure.tsjgit.util.DiffUtil;
 import com.techsure.tsjgit.util.JGitUtil;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeResult;
@@ -156,7 +157,8 @@ public class BranchApi {
     * @Param: [gitPath, sourceBra, targetBra, fileName] 
     * @return: net.sf.json.JSONObject  
     */ 
-    public static JSONObject diffBranch(String gitPath, String sourceBra, String targetBra, String fileName) throws IOException, GitAPIException{
+    public static JSONArray diffBranch(String gitPath, String sourceBra, String targetBra, String fileName) throws IOException, GitAPIException{
+        JSONArray diffArray = new JSONArray();
         try(Repository repository = RepositoryBaseApi.openJGitRepository(gitPath)){
             try(Git git = new Git(repository)){
                 List<DiffEntry> diff = BranchBaseApi.diffBranches(git, sourceBra, targetBra, repository, fileName);
@@ -166,12 +168,12 @@ public class BranchApi {
                             formatter.setRepository(repository);
                             formatter.format(entry);
                         }
-                        return DiffUtil.getDiffCodeJson(stream.toString());
+                        diffArray.add(DiffUtil.getDiffCodeJson(stream.toString()));
                     }
                 }
             }
         }
-        return null;
+        return diffArray;
     }
 
     /**

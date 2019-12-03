@@ -39,14 +39,16 @@ public class ListCommit implements IJGitPlugin {
     public JSONObject doService(JSONObject jsonObject) {
         JSONObject returnObj = new JSONObject();
         String repoName = jsonObject.optString("repoName");
-        String revStr = jsonObject.optString("branchName");
+        String braName = jsonObject.optString("braName");
+        String excludeBraName = jsonObject.optString("excludeBraName");
         String path = jsonObject.optString("path");
+
         List<JGitCommitVo> commitList = new ArrayList<>();
         try {
             if (JGitUtil.paramBlankCheck(repoName)){
                 throw new ParamBlankException();
             }
-            Iterable<RevCommit> commits = CommitApi.listCommits(JGitUtil.buildGitPath(repoName), revStr, path);
+            Iterable<RevCommit> commits = CommitApi.listCommits(JGitUtil.buildGitPath(repoName), braName, excludeBraName, path);
             Iterator iterator = commits.iterator();
             while (iterator.hasNext()){
                 RevCommit commit = (RevCommit)iterator.next();
@@ -66,7 +68,8 @@ public class ListCommit implements IJGitPlugin {
     public JSONArray help() {
         JSONArray jsonArray = new JSONArray();
         jsonArray.add(new JGitHelpVo("repoName","String", true,"repository name").parseJSON());
-        jsonArray.add(new JGitHelpVo("branName", "String", false, "branchName/tagName or HAS"));
+        jsonArray.add(new JGitHelpVo("braName", "String", false, "branchName/tagName or HAS"));
+        jsonArray.add(new JGitHelpVo("excludeBraName", "String", false, "exclude branchName/tagName or HAS"));
         jsonArray.add(new JGitHelpVo("path", "String", false, " path after repository"));
         return jsonArray;
     }

@@ -35,16 +35,23 @@ public class CommitBaseApi {
                 .call();
     }*/
 
-    public static Iterable<RevCommit> listCommits(Git git, String revStr, Repository repository, String path) throws IOException, GitAPIException {
+    public static Iterable<RevCommit> listCommits(Git git, String revStr, String excludeRevStr, Repository repository, String path) throws IOException, GitAPIException {
         LogCommand logCommand = git.log();
-        if (StringUtil.isNotBlank(revStr)){
+        if (StringUtil.isNotBlank(revStr)) {
             logCommand = logCommand.add(repository.resolve(revStr));
-            if (StringUtil.isNotBlank(path)){
-                logCommand = logCommand.addPath(path);
-            }
-        }else {
+        }
+        if (StringUtil.isNotBlank(excludeRevStr)) {
+            logCommand = logCommand.not(repository.resolve(excludeRevStr));
+        }
+
+        if (StringUtil.isNotBlank(path)) {
+            logCommand = logCommand.addPath(path);
+        }
+
+        if (StringUtil.isBlank(revStr) && StringUtil.isBlank(excludeRevStr)) {
             logCommand = logCommand.all();
         }
+
         return logCommand.call();
     }
 }

@@ -47,11 +47,10 @@ public class listWorkTree implements IJGitPlugin {
         JSONObject returnObj = new JSONObject();
         String repoName = jsonObject.optString("repoName");
         String path = jsonObject.optString("path");
-        String revStr = jsonObject.optString("branchName");
-
+        String branchName = jsonObject.optString("branchName");
 
         try {
-            if (JGitUtil.paramBlankCheck(repoName, revStr)){
+            if (JGitUtil.paramBlankCheck(repoName, branchName)){
                 throw new ParamBlankException();
             }
             String gitPath = JGitUtil.buildGitPath(repoName);
@@ -61,7 +60,7 @@ public class listWorkTree implements IJGitPlugin {
             }else {
                 workTree = new File(JGitUtil.buildRepositoryPath(repoName) + File.separator + path);
             }
-            returnObj.put("Data", listWorkTreeFile(gitPath, revStr, workTree, repoName));
+            returnObj.put("Data", listWorkTreeFile(gitPath, branchName, workTree, repoName));
             returnObj.put("Status", "OK");
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
