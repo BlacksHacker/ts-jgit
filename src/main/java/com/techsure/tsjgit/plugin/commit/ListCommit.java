@@ -68,8 +68,8 @@ public class ListCommit implements IJGitPlugin {
     public JSONArray help() {
         JSONArray jsonArray = new JSONArray();
         jsonArray.add(new JGitHelpVo("repoName","String", true,"repository name").parseJSON());
-        jsonArray.add(new JGitHelpVo("braName", "String", false, "branchName/tagName or HAS"));
-        jsonArray.add(new JGitHelpVo("excludeBraName", "String", false, "exclude branchName/tagName or HAS"));
+        jsonArray.add(new JGitHelpVo("braName", "String", false, "branch/tag name or HAS"));
+        jsonArray.add(new JGitHelpVo("excludeBraName", "String", false, "exclude branch/tag name or HAS"));
         jsonArray.add(new JGitHelpVo("path", "String", false, " path after repository"));
         return jsonArray;
     }

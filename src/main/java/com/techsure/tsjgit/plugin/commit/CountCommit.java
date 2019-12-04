@@ -37,7 +37,7 @@ public class CountCommit implements IJGitPlugin {
     public JSONObject doService(JSONObject jsonObject) {
         JSONObject returnObj = new JSONObject();
         String repoName = jsonObject.optString("repoName");
-        String revStr = jsonObject.optString("branchName");
+        String revStr = jsonObject.optString("braName");
         String excludeRevStr = jsonObject.optString("excludeRevStr");
         String path = jsonObject.optString("path");
         int commitCount = 0;
@@ -66,8 +66,9 @@ public class CountCommit implements IJGitPlugin {
     public JSONArray help() {
         JSONArray jsonArray = new JSONArray();
         jsonArray.add(new JGitHelpVo("repoName","String", true,"repository name").parseJSON());
-        jsonArray.add(new JGitHelpVo("branchName", "String", false, "branchName/tagName or HAS"));
-        jsonArray.add(new JGitHelpVo("path", "String", false, " path after repository"));
+        jsonArray.add(new JGitHelpVo("braName", "String", false, "branch/tag name or HAS").parseJSON());
+        jsonArray.add(new JGitHelpVo("excludeRevStr", "String", false, "exclude branch/tag name or HAS").parseJSON());
+        jsonArray.add(new JGitHelpVo("path", "String", false, " path after repository").parseJSON());
         return jsonArray;
     }
 }

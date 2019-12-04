@@ -7,42 +7,47 @@ import com.techsure.tsjgit.plugin.IJGitPlugin;
 import com.techsure.tsjgit.util.JGitUtil;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Ref;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import java.util.List;
 
 /**
  * @program: ts-jgit
  * @description:
- * @create: 2019-10-24 15:31
+ * @create: 2019-12-04 10:28
  **/
 @Component
-public class DeleteBranch implements IJGitPlugin {
-
-    Logger logger = LoggerFactory.getLogger(DeleteBranch.class);
+public class CheckBranchExist implements IJGitPlugin {
+    Logger logger = LoggerFactory.getLogger(CheckBranchExist.class);
 
     @Override
     public String getId() {
-        return "deletebranch";
+        return "checkbranchexist";
     }
 
     @Override
     public JSONObject doService(JSONObject jsonObject) {
+
         JSONObject returnObj = new JSONObject();
         String repoName = jsonObject.optString("repoName");
-        String branchName = jsonObject.optString("braName");
-        String mainBraName = jsonObject.optString("mainBraName");
+        String braName = jsonObject.optString("braName");
         try {
-            if (JGitUtil.paramBlankCheck(repoName, branchName, mainBraName)){
+            if (JGitUtil.paramBlankCheck(repoName, braName)){
                 throw new ParamBlankException();
             }
-            String gitPath = JGitUtil.buildGitPath(repoName);
-            BranchApi.checkoutBranch(gitPath, mainBraName);
-            BranchApi.branchDelete(gitPath, branchName);
+            boolean isExist = false;
+            List<Ref> refs = BranchApi.listBranchs(JGitUtil.buildGitPath(repoName));
+            for (Ref ref : refs){
+                if (braName.equals(JGitUtil.excludeRefHead(ref.getName()))){
+                    isExist = true;
+                    break;
+                }
+            }
             returnObj.put("Status", "OK");
+            returnObj.put("Data", isExist);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             returnObj.put("Status", "ERROR");
@@ -54,9 +59,8 @@ public class DeleteBranch implements IJGitPlugin {
     @Override
     public JSONArray help() {
         JSONArray jsonArray = new JSONArray();
-        jsonArray.add(new JGitHelpVo("repoName","String", true,"repository name").parseJSON());
-        jsonArray.add(new JGitHelpVo("braName", "String", true, "delete branch name or HAS").parseJSON());
-        jsonArray.add(new JGitHelpVo("mainBraName", "String", true,"main branch name").parseJSON());
+        jsonArray.add(new JGitHelpVo("repoName", "String", true, "repository name").parseJSON());
+        jsonArray.add(new JGitHelpVo("braName", "String", true, "branch name").parseJSON());
         return jsonArray;
     }
 }

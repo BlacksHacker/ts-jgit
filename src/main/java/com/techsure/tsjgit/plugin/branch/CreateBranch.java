@@ -31,7 +31,7 @@ public class CreateBranch implements IJGitPlugin {
     public JSONObject doService(JSONObject jsonObject) {
         JSONObject returnObj = new JSONObject();
         String repoName = jsonObject.optString("repoName");
-        String branchName = jsonObject.optString("branchName");
+        String branchName = jsonObject.optString("braName");
         String startPoint = jsonObject.optString("startPoint");
         try{
             if (JGitUtil.paramBlankCheck(repoName, branchName, startPoint)){
@@ -54,7 +54,7 @@ public class CreateBranch implements IJGitPlugin {
     public JSONArray help() {
         JSONArray jsonArray = new JSONArray();
         jsonArray.add(new JGitHelpVo("repoName","String", true,"repository name").parseJSON());
-        jsonArray.add(new JGitHelpVo("branchName", "String", true, "new branch name"));
+        jsonArray.add(new JGitHelpVo("braName", "String", true, "new branch name"));
         jsonArray.add(new JGitHelpVo("startPoint", "String", true, " source branch name or HAS"));
         return jsonArray;
     }

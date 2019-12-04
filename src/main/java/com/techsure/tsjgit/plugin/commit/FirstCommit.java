@@ -38,7 +38,7 @@ public class FirstCommit implements IJGitPlugin {
     public JSONObject doService(JSONObject jsonObject) {
         JSONObject returnObj = new JSONObject();
         String repoName = jsonObject.optString("repoName");
-        String revStr = jsonObject.optString("branchName");
+        String revStr = jsonObject.optString("braName");
         String path = jsonObject.optString("path");
         try {
             if (JGitUtil.paramBlankCheck(repoName)){
@@ -63,7 +63,7 @@ public class FirstCommit implements IJGitPlugin {
     public JSONArray help() {
         JSONArray jsonArray = new JSONArray();
         jsonArray.add(new JGitHelpVo("repoName","String", true,"repository name").parseJSON());
-        jsonArray.add(new JGitHelpVo("branchName", "String", false, "branchName/tagName or HAS"));
+        jsonArray.add(new JGitHelpVo("braName", "String", false, "branch/tag name or HAS"));
         jsonArray.add(new JGitHelpVo("path", "String", false, " path after repository"));
         return jsonArray;
     }
