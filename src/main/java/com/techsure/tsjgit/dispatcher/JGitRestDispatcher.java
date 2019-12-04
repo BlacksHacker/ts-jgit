@@ -4,6 +4,7 @@ import com.techsure.tsjgit.Application;
 import com.techsure.tsjgit.common.Config;
 import com.techsure.tsjgit.exception.ServiceNotFindException;
 import com.techsure.tsjgit.plugin.IJGitPlugin;
+import com.techsure.tsjgit.util.Authenticator;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ public class JGitRestDispatcher {
     Logger logger = LoggerFactory.getLogger(JGitRestDispatcher.class);
 
     private void doIt(HttpServletRequest request, String token, JSONObject paramJson, JSONObject jsonObj, String action) throws Exception {
-        /*Authenticator.authenticate(request);*/
+        /*if (Authenticator.authenticate(request)) {*/
         if (true) {
             IJGitPlugin plugin = Application.getPlugin(token);
             if (plugin != null) {
@@ -41,7 +42,6 @@ public class JGitRestDispatcher {
             } else {
                 throw new ServiceNotFindException();
             }
-
         }
     }
 
