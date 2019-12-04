@@ -33,12 +33,15 @@ public class DeleteBranch implements IJGitPlugin {
     public JSONObject doService(JSONObject jsonObject) {
         JSONObject returnObj = new JSONObject();
         String repoName = jsonObject.optString("repoName");
-        String branchName = jsonObject.optString("branchName");
+        String branchName = jsonObject.optString("braName");
+        String mainBraName = jsonObject.optString("mainBraName");
         try {
-            if (JGitUtil.paramBlankCheck(repoName, branchName)){
+            if (JGitUtil.paramBlankCheck(repoName, branchName, mainBraName)){
                 throw new ParamBlankException();
             }
-            BranchApi.branchDelete(JGitUtil.buildGitPath(repoName), branchName);
+            String gitPath = JGitUtil.buildGitPath(repoName);
+            BranchApi.checkoutBranch(gitPath, mainBraName);
+            BranchApi.branchDelete(gitPath, branchName);
             returnObj.put("Status", "OK");
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -52,7 +55,7 @@ public class DeleteBranch implements IJGitPlugin {
     public JSONArray help() {
         JSONArray jsonArray = new JSONArray();
         jsonArray.add(new JGitHelpVo("repoName","String", true,"repository name").parseJSON());
-        jsonArray.add(new JGitHelpVo("branchName", "String", true, "delete branch name or HAS"));
+        jsonArray.add(new JGitHelpVo("braName", "String", true, "delete branch name or HAS"));
         return jsonArray;
     }
 }
