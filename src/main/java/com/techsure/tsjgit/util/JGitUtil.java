@@ -64,6 +64,14 @@ public class JGitUtil {
                 .toString();
     }
 
+    public static String buildFileRelativePath(String fileName, String relativePath){
+        return new StringBuilder()
+                .append(relativePath)
+                .append(File.separator)
+                .append(fileName)
+                .toString();
+    }
+
     public static String buildFileFullPath(String repoName, String filName){
         return buildFileFullPath(repoName, filName, null);
     }
