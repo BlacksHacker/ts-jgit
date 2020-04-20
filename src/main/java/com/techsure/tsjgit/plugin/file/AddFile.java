@@ -27,6 +27,7 @@ import java.io.*;
  **/
 @Component
 public class AddFile implements IJGitPlugin {
+    private static final String FOLDER = "folder";
 
     Logger logger = LoggerFactory.getLogger(AddFile.class);
 
@@ -39,35 +40,39 @@ public class AddFile implements IJGitPlugin {
     public JSONObject doService(JSONObject jsonObject) {
         JSONObject returnObj = new JSONObject();
         String repoName = jsonObject.optString("repoName");
-        String oldBranchName = jsonObject.optString("braName");
+        String braName = jsonObject.optString("braName");
         String newBranchName = jsonObject.optString("newBraName");
         String content = jsonObject.optString("content");
         String message = jsonObject.optString("message");
         String fileName = jsonObject.optString("fileName");
         String path = jsonObject.optString("path");
-        Boolean isAuth = jsonObject.optBoolean("isAuth");
+        String fileType = jsonObject.optString("fileType");
+       /* Boolean isAuth = jsonObject.optBoolean("isAuth");*/
         try {
-            if (JGitUtil.paramBlankCheck(repoName, oldBranchName, message, fileName, path)){
+            /*if (JGitUtil.paramBlankCheck(repoName, braName, message, fileName, path)){
                 throw new ParamBlankException();
-            }
+            }*/
             String fileFullPath = JGitUtil.buildFileFullPath(repoName, fileName, path);
             String relativePath = JGitUtil.buildFileRelativePath(fileName, path);
             String gitPath = JGitUtil.buildGitPath(repoName);
-            BranchApi.checkoutBranch(gitPath, oldBranchName);
+            BranchApi.checkoutBranch(gitPath, braName);
             File file = new File(fileFullPath);
             if (file.exists()){
                 throw new FileExistsException();
             }
-            if (!isAuth){
-                if (JGitUtil.paramBlankCheck(newBranchName)){
-                    throw new ParamBlankException();
-                }
-                BranchApi.branchCreate(gitPath, newBranchName, oldBranchName);
+            if (!braName.equals(newBranchName)){
+                BranchApi.branchCreate(gitPath, newBranchName, braName);
                 BranchApi.checkoutBranch(gitPath, newBranchName);
             }
+            boolean isFolder = FOLDER.equals(fileType);
+            if (isFolder){
+                file = new File(fileFullPath + File.separator + ".gitkeep");
+            }
             file.createNewFile();
-            try(BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"))){
-                bw.write(content);
+            if (!isFolder){
+                try(BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"))){
+                    bw.write(content);
+                }
             }
             RepositoryApi.commitFile(gitPath, message, JGitUtil.toLinux(relativePath));
             returnObj.put("Status", "OK");

@@ -38,9 +38,9 @@ public class ListBranch implements IJGitPlugin {
         String repoName = jsonObject.optString("repoName");
         List<JGitBranchVo> branchList = new ArrayList<>();
         try {
-            if (JGitUtil.paramBlankCheck(repoName)){
+            /*if (JGitUtil.paramBlankCheck(repoName)){
                 throw new ParamBlankException();
-            }
+            }*/
             List<Ref> refs = BranchApi.listBranchs(JGitUtil.buildGitPath(repoName));
             for (Ref ref : refs){
                 branchList.add(new JGitBranchVo(JGitUtil.excludeRefHead(ref.getName()), ref.getObjectId().getName()));

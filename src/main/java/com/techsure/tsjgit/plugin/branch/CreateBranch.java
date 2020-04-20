@@ -34,9 +34,9 @@ public class CreateBranch implements IJGitPlugin {
         String branchName = jsonObject.optString("braName");
         String startPoint = jsonObject.optString("startPoint");
         try{
-            if (JGitUtil.paramBlankCheck(repoName, branchName, startPoint)){
+           /* if (JGitUtil.paramBlankCheck(repoName, branchName, startPoint)){
                 throw new ParamBlankException();
-            }
+            }*/
             if (BranchApi.branchExist(JGitUtil.buildGitPath(repoName), branchName)){
                 throw new BranchExistException();
             }

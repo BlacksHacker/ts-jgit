@@ -31,7 +31,7 @@ public class JGitRestDispatcher {
 
     private void doIt(HttpServletRequest request, String token, JSONObject paramJson, JSONObject jsonObj, String action) throws Exception {
         /*if (Authenticator.authenticate(request)) {*/
-        if (true) {
+        if (Authenticator.authenticate(request)) {
             IJGitPlugin plugin = Application.getPlugin(token);
             if (plugin != null) {
                 if (action.equals(SERVICE)) {
