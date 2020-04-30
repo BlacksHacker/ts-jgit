@@ -8,6 +8,7 @@ import com.techsure.tsjgit.plugin.IJGitPlugin;
 import com.techsure.tsjgit.util.JGitUtil;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -34,13 +35,14 @@ public class CreateBranch implements IJGitPlugin {
         String branchName = jsonObject.optString("braName");
         String startPoint = jsonObject.optString("startPoint");
         try{
-           /* if (JGitUtil.paramBlankCheck(repoName, branchName, startPoint)){
-                throw new ParamBlankException();
-            }*/
             if (BranchApi.branchExist(JGitUtil.buildGitPath(repoName), branchName)){
                 throw new BranchExistException();
             }
-            BranchApi.branchCreate(JGitUtil.buildGitPath(repoName), branchName, startPoint);
+            if (StringUtils.isNotBlank(startPoint)){
+                BranchApi.branchCreate(JGitUtil.buildGitPath(repoName), branchName, startPoint);
+            }else {
+                BranchApi.branchCreate(JGitUtil.buildGitPath(repoName), branchName);
+            }
             returnObj.put("Status", "OK");
         }catch (Exception ex){
             logger.error(ex.getMessage(), ex);

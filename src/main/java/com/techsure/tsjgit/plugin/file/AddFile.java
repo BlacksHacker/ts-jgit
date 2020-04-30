@@ -47,11 +47,7 @@ public class AddFile implements IJGitPlugin {
         String fileName = jsonObject.optString("fileName");
         String path = jsonObject.optString("path");
         String fileType = jsonObject.optString("fileType");
-       /* Boolean isAuth = jsonObject.optBoolean("isAuth");*/
         try {
-            /*if (JGitUtil.paramBlankCheck(repoName, braName, message, fileName, path)){
-                throw new ParamBlankException();
-            }*/
             String fileFullPath = JGitUtil.buildFileFullPath(repoName, fileName, path);
             String relativePath = JGitUtil.buildFileRelativePath(fileName, path);
             String gitPath = JGitUtil.buildGitPath(repoName);
