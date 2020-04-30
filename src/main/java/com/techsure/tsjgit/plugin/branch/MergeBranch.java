@@ -13,7 +13,7 @@ import org.springframework.stereotype.Controller;
 
 /**
  * @program: ts-jgit
- * @description: 合并分支
+ * @description: 合并分支, 需重做，该逻辑不符合当下业务要求
  * @create: 2019-11-21 18:09
  **/
 @Controller
