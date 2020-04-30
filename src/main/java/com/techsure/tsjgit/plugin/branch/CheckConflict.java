@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
  * @program: ts-jgit
  * @description:
  * @create: 2019-12-02 17:26
+ *
+ * 该接口冲突检查会合并代码，不符合当下业务要求 需重做
  **/
 @Component
 public class CheckConflict implements IJGitPlugin {
